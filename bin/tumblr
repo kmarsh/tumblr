@@ -1,0 +1,174 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'active_record'
+require 'feed_tools'
+require 'erubis'
+require 'fileutils'
+require 'date'
+
+FEEDS = YAML.load_file("config/feeds.yml")
+
+module Tumblr
+  
+  ActiveRecord::Base.establish_connection({
+    :adapter => "sqlite3", 
+    :dbfile => "db/development.db" 
+  })
+
+  class Post < ActiveRecord::Base
+    
+    serialize :tags
+    
+    def self.archives
+      months = self.count(:group => "strftime('%Y-%m-1', time)", :order => 'time DESC')
+      months.map {|k, v| [Date.parse(k), v]}
+    end
+    
+    def generated_permalink
+      if !FEEDS[feed]['generate_permalink'].nil?
+        path = time.strftime("%Y/%m/%d")
+        year, month, date = path.split('/').map {|i| i.to_i } # hack because strftime adds leading 0's
+        path = "#{year}/#{month}/#{date}"
+
+        name = (title || content).to_s[0,30].downcase.gsub(/[^a-z0-9]+/, "-")
+        
+        return "/#{path}/#{name}"        
+      else
+        return nil
+      end
+    end
+  end
+
+  class Tumblr
+    
+    attr_accessor :database, :feeds
+    
+    def initialize
+      @database = YAML.load_file("config/database.yml")
+      @feeds = FEEDS
+    end
+    
+    # Create the tumblr database
+    def create
+      puts "Creating tumblr"
+      ActiveRecord::Base.connection.execute(File.open("db/schema.sql").read)
+    end
+    
+    # Refresh feeds and generate HTML in one fail swoop
+    def update
+      puts "Updating tumblr"
+      refresh
+      generate
+    end
+    
+    # Fetch a feed and add its contents to the local cache
+    def fetch(feed_key)
+      url = @feeds[feed_key.to_s]['url']
+      puts "Fetching #{url}"
+      begin
+        feed = FeedTools::Feed.open(url)
+        items = feed.items
+        items.each do |item|
+          @post           = Post.find_or_initialize_by_link(item.link)
+          @post.guid      = item.id
+          @post.title     = item.title
+          @post.link      = item.link
+          @post.time      = item.time
+          @post.feed      = feed_key
+          @post.tags      = item.tags
+          @post.content   = item.content
+          @post.permalink = @post.generated_permalink || item.link
+          @post.media_thumbnail_link = item.media_thumbnail_link
+          @post.save
+        end
+      rescue FeedTools::FeedAccessError => errmsg
+        puts "\tFailed to fetch #{url}\n\t#{errmsg}\n\tSkipping #{url}"
+      end
+    end
+
+    def render(post)
+      return nil unless post.respond_to?(:feed)
+      
+      feed_type = post.feed
+      @post = post
+      partial = File.read("templates/post/_#{feed_type}.html.erb")
+      erb = Erubis::Eruby.new(partial)
+      
+      return erb.result(binding())      
+    end
+
+    # Refresh feeds
+    def refresh
+      puts "Refreshing feeds"
+      @feeds.each do |key, feed|
+        fetch(key)
+      end
+    end
+    
+    # Generate static HTML from feeds
+    def generate
+      puts "Generating tumblr"
+      
+      @archives = Post.archives
+      
+      # Index
+      @posts = Post.find(:all, :order => "time DESC", :limit => 40)
+      parse("templates/index.html.erb", "public/index.html", binding())
+
+      # Permalink pages (if any)
+      @all_posts = Post.find(:all).select {|p| FEEDS[p.feed]['generate_permalink']}.each do |post|
+        @post = post
+        if FileTest.file?("templates/post.#{post.feed}.html.erb")
+           parse("templates/post.#{post.feed}.html.erb", "public/#{post.permalink}.html", binding())
+        end
+      end
+      
+      # Monthly archives
+      Post.archives.each do |date, posts|
+        @posts = Post.find(:all, :order => "time DESC", :conditions => ["strftime('%Y-%m', time) = ?", date.strftime('%Y-%m')])
+        parse("templates/index.html.erb", "public/#{date.year}/#{date.month}/index.html", binding())
+      end
+    end
+    
+    # Parse a template file with the default layout
+    def parse(template, output, b = binding())
+      # Generate the requested page
+      template = File.read(template)
+      erb = Erubis::Eruby.new(template)
+      @content = erb.result(b)
+      
+      # Generate the layout
+      layout = File.read("templates/layout.html.erb")
+      erb_layout = Erubis::Eruby.new(layout)
+      
+      FileUtils.mkdir_p(File.dirname(output))
+      File.open(output, "w+") do |f|
+        f.puts erb_layout.result(b)
+      end
+    end
+  end
+end
+
+if $0 == __FILE__
+  include Tumblr
+  
+  tumblr = Tumblr::Tumblr.new
+
+  case ARGV[0]
+    when /generate/
+      tumblr.generate
+
+    when /help/
+      puts "Usage: #{$0} [action]"
+      puts "  default       fetch all feeds and generate static files"
+      puts "  --generate    generate static files from existing content"
+      
+    else
+      if !File.exists?("db/development.db")
+        tumblr.create
+      end
+  
+      tumblr.update
+  end
+end

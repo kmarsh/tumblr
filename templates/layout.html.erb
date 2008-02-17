@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <title>Kevin Marsh</title>
+    <link href="/stylesheets/styles.css" rel="stylesheet" type="text/css" />
+    <%- @feeds.each do |key, feed| -%>
+    <link rel="alternate" type="application/rss+xml" href="<%= feed['url'] %>" />
+    <%- end -%>
+    <link rel="shortcut icon" type="image/x-icon" href="http://www.kevinmarsh.com/favicon.ico" />
+    <meta name="keywords" content="kevin marsh, blog, weblog, toledo, web design,web developer, xhtml, ruby, rails, ruby on rails, songmeanings" />
+    <meta name="description" content="Blog of Kevin Marsh, a web designer and developer from Toledo, Ohio; best known as the creator of SongMeanings" />
+</head>
+<body id="www-kevinmarsh-com" class="w-sidebar">
+  <div id="container">
+    <div id="header">
+      <h1><a href="/">Kevin Marsh</a></h1>
+    </div>
+    <div id="sidebar">
+      <h2>Feeds</h2>
+      <ul id="feeds">
+        <%- @feeds.each do |key, feed| -%>
+        <li class="feed <%= key %>"><a href="<%= feed['url'] %>"><%= feed['title'] %></a></li>
+        <%- end -%>
+      </ul>
+      <h2>Archives</h2>
+      <ul>
+        <%- @archives.each do |date, posts| -%>
+        <li><a href="<%= date.year %>/<%= date.month %>/"><%= date.strftime("%B %Y") %></a> (<%= posts %>)</li>
+        <%- end -%>
+      </ul>
+    </div>    
+    <div id="content">
+      <%= @content %>
+    </div>
+    <br/>
+    <div id="footer">
+      Powered by <a href="http://rubyforge.org/projects/tumblr/">tumblr</a>.
+      Copyright &copy; 2004-2008 Kevin Marsh unless otherwise stated. All rights
+      reserved.
+    </div>
+  </div>
+  <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+  </script>
+  <script type="text/javascript">
+    var pageTracker = _gat._getTracker("UA-90937-21");
+    pageTracker._initData();
+    pageTracker._trackPageview();
+  </script>    
+</body>
+</html>

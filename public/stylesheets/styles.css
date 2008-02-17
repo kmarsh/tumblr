@@ -1,0 +1,196 @@
+/*
+ * Colors:
+ *  #99b3cc - light blue
+ *  #334d66 - dark blue
+
+    .delicious  { border-left: 5px solid #00f; }
+    .flickr     { border-left: 5px solid #ff0084; }
+    .slashdot   { border-left: 5px solid #055; }
+    .claimid    { border-left: 5px solid #c00; }
+    .twitter    { border-left: 5px solid #9ae4e8; }
+    .tumblr     { border-left: 5px solid #333; }
+    .lastfm     { border-left: 5px solid #cb0d3a; }
+    .snippets   { border-left: 5px solid #c00; }
+ 
+ */
+
+body, p, ul, ol, li, dt, dd, dl, h1, h2, h3, h4, h5, h6,
+pre, code, table, td, th {
+  margin: 0;
+  padding: 0;
+  font-size: 100%;
+}
+
+body {
+  font: 90%/1.4em Helvetica, Verdana, Arial, sans-serif;
+  margin: 0;
+}
+
+pre {
+  font: 11px/160% Monaco, Courier, monospace;
+  padding: 1em;
+  background-color: #eee;
+  margin-top: 0.5em;
+  overflow: auto;
+}
+
+br {
+  clear: both;
+}
+
+a {
+  color: #334d66;
+}
+
+a:hover {
+  color: #99b3cc;
+}
+
+a:visited {
+  color: #333;
+}
+
+code {
+  font-size: 1.1em;
+}
+.w-sidebar #content {
+  width: 525px;
+}
+
+.wo-sidebar #content {
+  width: 600px;
+}
+
+#container {
+  width: 700px;
+}
+#header h1 {
+  color: #fff;
+  padding: 5px;
+  background-color: #334d66;
+  font-family: Georgia;
+  font-size: 2.1em;
+  padding: 10px 0 10px 30px;
+}
+
+#header h1 a, #header h1 a:hover, #header h1 a:active, #header h1 a:visited {
+  color: #fff;
+  text-decoration: none;
+}
+
+#content h2 {
+  margin-top: 1em;
+  padding-left: 25px;
+  font-size: 1.0em;
+  color: #ddd;
+}
+
+#sidebar {
+  width: 150px;
+  float: right;
+}
+
+#sidebar h2 {
+  margin-top: 1em;
+}
+
+#sidebar ul {
+  list-style-type: none;
+  line-height: 1.3em;
+}
+
+#sidebar ul li {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+#sidebar #feeds li {
+  padding-left: 15px;
+  margin-top: 2px;
+}
+
+#sidebar #feeds .feed.blog {
+  border-left: 10px solid #334d66;
+  padding-left: 5px;
+}
+
+#sidebar #feeds .feed.twitter {
+  border-left: 10px solid #9ae4e8;
+  padding-left: 5px;
+}
+
+#sidebar #feeds .feed.flickr {
+  border-left: 10px solid #ff0084;
+  padding-left: 5px;
+}
+
+#sidebar #feeds .feed.delicious {
+  border-left: 10px solid #00f;
+  padding-left: 5px;
+}
+
+.post h1 {
+  font-size: 1.3em;
+  margin-bottom: 0.5em;
+}
+
+.post h1 a, .post h1 a:active, .post h1 a:visited, .post h1 a:hover {
+  color: #000;
+  text-decoration: none;
+}
+
+.post ol, .post ul {
+  margin-top: 0.5em;
+  margin-left: 3em;
+}
+
+.post {
+  margin-top: 1em;
+  padding-left: 30px;
+}
+
+.post.about {
+  color: #444;
+}
+
+.post.blog {
+  border-left: 10px solid #334d66;
+  padding-left: 15px;
+}
+
+.post.blog p {
+  text-align: justify;
+  margin-top: 0.5em;
+}
+
+.post.twitter {
+  border-left: 10px solid #9ae4e8;
+  padding-left: 15px;
+}
+
+.post.flickr {
+  border-left: 10px solid #ff0084;
+  padding-left: 15px;
+}
+
+.post.delicious {
+  border-left: 10px solid #00f;
+  padding-left: 15px;
+}
+
+.post.delicious .tags {
+  font-size: 0.75em;
+  margin-top: 0;
+}
+
+.post.delicious .tags a {
+  color: #99b3cc;
+  text-decoration: none;
+}
+
+#footer {
+  color: #333;
+  margin-top: 1em;
+  padding: 10px 10px 10px 30px;
+  background-color: #eee;
+}

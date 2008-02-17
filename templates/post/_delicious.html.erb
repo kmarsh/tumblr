@@ -1,0 +1,9 @@
+      <div class="post delicious">
+        <p><a href="<%= @post.link %>"><%= @post.title %></a></p>
+        <p><%= @post.content %></p>
+        <p class="tags">
+          <%- @post.tags.each do |tag| -%>
+          <a href="http://del.icio.us/kevinmarsh/<%= tag %>"><%= tag %></a>
+          <%- end -%>
+        </p>
+      </div>

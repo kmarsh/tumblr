@@ -1,0 +1,16 @@
+blog:
+  url: http://feeds.feedburner.com/kevinmarsh
+  title: Blog
+  generate_permalink: true
+
+# flickr:
+#   url: http://api.flickr.com/services/feeds/photos_public.gne?id=68287856@N00&lang=en-us&format=rss_200
+#   title: Flickr
+    
+delicious:
+  url: http://del.icio.us/rss/kevinmarsh
+  title: del.icio.us
+
+twitter:
+  url: http://twitter.com/statuses/user_timeline/56813.rss
+  title: Twitter

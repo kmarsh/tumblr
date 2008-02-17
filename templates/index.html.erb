@@ -1,0 +1,11 @@
+      <div class="post about">
+        <p>A tumblelog-style assembly of my offerings to the Internets, perpetually
+           updated.</p>
+      </div>
+
+    <% last_time = nil %>
+    <% @posts.each do |post| %>
+      <h2><% time = post.time.strftime("%A, %B %d, %Y") %><%= time if time != last_time %></h2>
+      <%= render post %>
+      <%- last_time = time -%>
+    <% end %>

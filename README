@@ -1,0 +1,130 @@
+== Tumblr
+
+Tumblr is a simple Ruby script that aggregates RSS feeds into a "tumblelog"-style
+format, in static files.
+
+=== Feeds
+
+Feeds are specified in <tt>config/feeds.yml</tt> like so:
+
+  blog:
+    url: http://feeds.feedburner.com/kevinmarsh
+    title: Blog
+    generate_permalink: true
+    
+  delicious:
+    url: http://del.icio.us/rss/kevinmarsh
+    title: del.icio.us
+
+Because it is a YAML file, spaces are important (not tabs!). The url and title
+keys are pretty straightforward, but the <tt>generate_permalink</tt> may be a little
+confusing. <tt>generate_permalink</tt> should be set to true if you want tumblr to
+create its own permalink page for the content and link to that. This is
+especially useful if you have a RSS-only feed that you'd like to generate a
+static page for. The default is to not specify it, therefore preserving the
+feed's permalink for the post.
+
+=== Templates
+
+Templates specify how you want tumblr to render the content of your feeds.
+They are specified on a per-feed basis, so you can have different templates
+for each type of content (only showing a <tt>media_thumbnail_link</tt> in Flickr, or tags for
+del.icio.us, for example.)
+
+Templates are straight-up ERB, so they will look very familiar if you've used
+Rails, and there a few key ones everyone should have:
+
+  index.html.erb
+  layout.html.erb
+  post/_[feed_type].html.erb
+  post.[feed_type].html.erb
+  
+==== index.html.erb
+
+This is the template for the main index page and archive pages. It is a listing
+of posts, and may look something like:
+
+  <% last_time = nil %>
+  <% @posts.each do |post| %>
+    <h2><% time = post.time.strftime("%A, %B %d, %Y") %></h2>
+    <%= render post %>
+  <% end %>
+
+==== layout.html.erb
+
+This is the template for the layout of your site. All the other templates will
+be wrapped around this one, inserted wherever <%= @content %> is. You'll include
+your stylesheets, meta tags, doctype, and whatnot here.
+
+You also have access to a few variables that can give you some flexibility in
+laying out your tumblr: <tt>@feeds</tt> and <tt>@archives</tt>. They are used thusly:
+
+  <h2>Feeds</h2>
+  <ul id="feeds">
+    <%- @feeds.each do |key, feed| -%>
+    <li class="feed <%= key %>"><a href="<%= feed['url'] %>"><%= feed['title'] %></a></li>
+    <%- end -%>
+  </ul>
+
+  <h2>Archives</h2>
+  <ul>
+    <%- @archives.each do |date, posts| -%>
+    <li><a href="/<%= date.year %>/<%= date.month %>/"><%= date.strftime("%B %Y") %></a> (<%= posts %>)</li>
+    <%- end -%>
+  </ul>
+  </div>    
+      
+==== post/_[feed_type].html.erb
+
+This is the template rendered for each post. You will have one of these for each
+feed you are displaying in your tumblr so you can customize and tailor the output for each.
+
+For example, a Flickr feed may show a thumbnail:
+
+  <div class="post flickr">
+    <h1><a href="<%= @post.link %>"><%= @post.title %></a></h1>
+    <img src="<%= @post.media_thumbnail_link %>" alt="<%= @post.title %>" />
+  </div>
+
+While a del.icio.us feed will show tags:
+
+  <div class="post delicious">
+    <p><a href="<%= @post.link %>"><%= @post.title %></a></p>
+    <p><%= @post.content %></p>
+    <p class="tags">
+      <%- @post.tags.each do |tag| -%>
+      <a href="http://del.icio.us/kevinmarsh/<%= tag %>"><%= tag %></a>
+      <%- end -%>
+    </p>
+  </div>
+
+Note: templates are ERB, which means you can run any string through Ruby and
+manipulate the output. This is especially useful for feeds like Twitter, to
+strip out your username from each post:
+
+  <div class="post twitter">
+    <p><%= @post.content.gsub(/^willcodeforfoo\:/, "") %></p>
+  </div>
+  
+This also means you must be careful!
+
+====  post.[feed_type].html.erb
+
+This template is very similar to those "partials" in the post/ directory,
+but they are rendered if and when tumblr creates permalink pages for you.
+
+=== Generating
+
+It is important to note that tumblr generates static files for you, which means
+tumblr is not serving pages for you. You read that right, pages are not dynamic,
+and this is still Web 2.0. You'll have to point your web server to tumblr's
+public directory.
+
+Each time you invoke <tt>tumblr</tt>, tumblr will fetch new feed items and regenerate
+all your pages (index, monthly archives, and invidual permalink pages if you 
+have feeds with <tt>generate_permalink</tt>). This may seem like overkill, but for
+high traffic sites, generating static files once every hour vs. every hit is the
+less expensive route.
+
+To just re-generate without fetching your feeds, throw tumblr the <tt>--generate</tt>
+flag. You may find yourself wanting this after you tweak a template.
